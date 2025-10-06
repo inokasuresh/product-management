@@ -1,0 +1,191 @@
+openapi: 3.0.3
+info:
+  title: Product Management API
+  version: "1.0.0"
+  description: Product Management API for sellers. Emits ProductCreated/ProductUpdated/ProductDeleted and LowStockWarning events.
+servers:
+  - url: http://localhost:8080
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Product:
+      type: object
+      required: [id, name, price, quantity, category, seller_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        seller_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+          format: float
+        quantity:
+          type: integer
+        category:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        version:
+          type: integer
+    ProductCreate:
+      type: object
+      required: [name, price, quantity, category]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        price: { type: number, format: float }
+        quantity: { type: integer }
+        category: { type: string }
+    ProductUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        price: { type: number, format: float }
+        quantity: { type: integer }
+        category: { type: string }
+        version: { type: integer, description: "Optimistic concurrency version" }
+    Error:
+      type: object
+      properties:
+        message: { type: string }
+security:
+  - BearerAuth: []
+paths:
+  /products:
+    post:
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: List seller's products
+      parameters:
+        - name: sellerId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /products/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      summary: Update product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "409":
+          description: Version conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete product
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /events/stream:
+    get:
+      summary: Server-Sent Events stream for notifications (LowStockWarning)
+      description: |
+        SSE endpoint that streams low-stock events and other notifications for the seller.
+        Client should send `sellerId` query param for scoping.
+      parameters:
+        - name: sellerId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: text/event-stream
+          content:
+            text/event-stream:
+              schema:
+                type: string

@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["event_id", "event_type", "occurred_at", "seller_id", "payload"],
+  "properties": {
+    "event_id": { "type": "string" },
+    "event_type": { "const": "ProductUpdated" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "seller_id": { "type": "string" },
+    "payload": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "type": "integer" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "integer" },
+        "category": { "type": "string" }
+      }
+    }
+  }
+}

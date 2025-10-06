@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["event_id", "event_type", "occurred_at", "seller_id", "payload"],
+  "properties": {
+    "event_id": { "type": "string" },
+    "event_type": { "const": "LowStockWarning" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "seller_id": { "type": "string" },
+    "payload": {
+      "type": "object",
+      "required": ["product_id", "name", "quantity", "threshold"],
+      "properties": {
+        "product_id": { "type": "string" },
+        "name": { "type": "string" },
+        "quantity": { "type": "integer" },
+        "threshold": { "type": "integer" }
+      }
+    }
+  }
+}
