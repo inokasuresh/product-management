@@ -16,12 +16,3 @@ EXPOSE 3000
 #EXPOSE 5173
 
 CMD [ "serve", "-s", "dist", "-l", "3000" ]
-#CMD [ "npm", "run", "dev" ]
-
-# Step 1: docker --version
-# Step 2: docker images
-# Step 3: docker build . -t myapp:latest
-# Step 4: docker images
-# Step 5: docker run -p 3000:3000 myapp
-
-# docker run -it -p 5173:5173 myapp:latest

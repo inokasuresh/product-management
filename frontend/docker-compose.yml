@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: frontendapp:latest
+    container_name: frontend-container
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
